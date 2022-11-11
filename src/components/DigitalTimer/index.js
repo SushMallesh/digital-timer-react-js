@@ -1,0 +1,152 @@
+import {Component} from 'react'
+import './index.css'
+
+class DigitalTimer extends Component {
+  state = {timerStatus: false, min: 25, sec: 0}
+
+  decrementSeconds = () => {
+    this.setState(prevState => {
+      const {sec, min} = prevState
+
+      if (sec <= 0) {
+        return {sec: sec + 59}
+      }
+      if (sec === 1) {
+        return {sec: sec - 1, min: min - 1}
+      }
+      return {sec: sec - 1}
+    })
+  }
+
+  clearTimerInterval = () => {
+    clearInterval(this.timerId)
+  }
+
+  onStartOrPauseTimer = () => {
+    const {timerStatus, min, sec} = this.state
+
+    const isTimerCompleted = sec === min * 59
+    if (isTimerCompleted) {
+      this.setState({sec: 0})
+    }
+    if (timerStatus) {
+      this.clearTimerInterval()
+    } else {
+      this.timerId = setInterval(this.decrementSeconds, 1000)
+    }
+    this.setState(prevState => ({timerStatus: !prevState.timerStatus}))
+  }
+
+  onResetTimer = () => {
+    this.clearTimerInterval()
+    this.setState({
+      timerStatus: false,
+      min: 25,
+      sec: 0,
+    })
+  }
+
+  onClickMinus = () => {
+    this.setState(prevState => ({
+      min: prevState.min - 1,
+    }))
+  }
+
+  onClickPlus = () => {
+    this.setState(prevState => ({
+      min: prevState.min + 1,
+    }))
+  }
+
+  render() {
+    const {timerStatus, min, sec} = this.state
+    const secondsFormat = sec > 9 ? sec : `0${sec}`
+
+    const minutesFormat = min > 9 ? min : `0${min}`
+
+    const timerStatusIcon = timerStatus
+      ? 'https://assets.ccbp.in/frontend/react-js/pause-icon-img.png'
+      : 'https://assets.ccbp.in/frontend/react-js/play-icon-img.png'
+
+    const altIcon = timerStatus ? 'pause icon' : 'play icon'
+    return (
+      <div className="app-container">
+        <h1 className="heading">Digital Timer</h1>
+        <div className="responsive-container">
+          <div className="timer-container">
+            <div className="timer-card">
+              <h1 className="time">
+                {minutesFormat}:{secondsFormat}
+              </h1>
+              {timerStatus && <p className="timer-status-text">Running</p>}
+              {!timerStatus && <p className="timer-status-text">Paused</p>}
+            </div>
+          </div>
+          <div className="timer-control-container">
+            <div className="card">
+              <button
+                onClick={this.onStartOrPauseTimer}
+                className="status-button"
+                type="button"
+              >
+                <img className="icon" src={timerStatusIcon} alt={altIcon} />
+                {timerStatus ? 'Pause' : 'Start'}
+              </button>
+
+              <div className="card">
+                <button
+                  onClick={this.onResetTimer}
+                  className="status-button"
+                  type="button"
+                >
+                  <img
+                    className="icon"
+                    src="https://assets.ccbp.in/frontend/react-js/reset-icon-img.png"
+                    alt="reset icon"
+                  />
+                  Reset
+                </button>
+              </div>
+            </div>
+            <div className="set-timer-card">
+              <p className="set-timer-text">Set Timer Limit</p>
+              <div className="card">
+                {!timerStatus && (
+                  <button
+                    onClick={this.onClickMinus}
+                    className="button"
+                    type="button"
+                  >
+                    -
+                  </button>
+                )}
+                {timerStatus && (
+                  <button className="button" type="button">
+                    -
+                  </button>
+                )}
+                <p className="timer-limit">{min}</p>
+                {!timerStatus && (
+                  <button
+                    onClick={this.onClickPlus}
+                    className="button"
+                    type="button"
+                  >
+                    +
+                  </button>
+                )}
+                {timerStatus && (
+                  <button className="button" type="button">
+                    +
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+}
+
+export default DigitalTimer
